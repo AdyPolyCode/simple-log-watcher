@@ -1,0 +1,15 @@
+{
+    "name": "watcher",
+    "version": "1.0.0",
+    "main": "index.js",
+    "scripts": {
+        "test:file-handler": "mocha file-handler.test.js",
+        "start": "node index.js"
+    },
+    "keywords": [],
+    "author": "ady",
+    "devDependencies": {
+        "chai": "^4.3.7",
+        "mocha": "^10.2.0"
+    }
+}
