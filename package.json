@@ -1,0 +1,23 @@
+{
+  "name": "simple-log-watcher",
+  "version": "1.0.0",
+  "description": "watch simple logs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start-server": "cd ./server && call npm run start",
+    "start-client": "cd ./client && npm run start",
+    "start-watcher": "cd ./watcher && npm run start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AdyPolyCode/simple-log-watcher.git"
+  },
+  "keywords": [],
+  "author": "ady",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/AdyPolyCode/simple-log-watcher/issues"
+  },
+  "homepage": "https://github.com/AdyPolyCode/simple-log-watcher#readme"
+}
