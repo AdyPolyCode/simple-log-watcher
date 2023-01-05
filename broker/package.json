@@ -1,0 +1,16 @@
+{
+    "name": "broker",
+    "version": "1.0.0",
+    "description": "",
+    "main": "server-event-handler.js",
+    "scripts": {
+        "test": "mocha server-event-handler.test.js"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "chai": "^4.3.7",
+        "mocha": "^10.2.0"
+    }
+}
