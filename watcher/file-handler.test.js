@@ -4,15 +4,20 @@ const { expect } = require('chai');
 const { join, dirname } = require('path');
 
 const { FileHandler, errorMessages } = require('./file-handler');
+const { existsSync } = require('fs');
 
 // TODO: unit tests
 describe("Validate 'FileHandler' methods", function () {
     describe('Verify positive test cases', function () {
+        /**
+         * _verifyPath
+         */
         it('Should return true on valid path argument', function () {
             expect(FileHandler._verifyPath('.')).to.be.true;
         });
 
         /**
+         * _verifyConfigPath
          * Config path file tests should be run regards to where file path exists
          * - uncomment which one needs to be tested
          */
@@ -23,18 +28,16 @@ describe("Validate 'FileHandler' methods", function () {
         });
 
         // it('Should return valid path to config file if found in watcher parent root', function () {
-        //   const watcherRoot = join(
-        //     dirname(dirname(__dirname)),
-        //     'watcher.config.js'
-        //   );
-
-        //   expect(FileHandler._verifyConfigPath()).to.be.equal(watcherRoot);
+        //     const watcherRoot = join(
+        //         dirname(dirname(__dirname)),
+        //         'watcher.config.js'
+        //     );
+        //     expect(FileHandler._verifyConfigPath()).to.be.equal(watcherRoot);
         // });
 
         /**
-         * ################################################################################
+         * _getConfigFileProps
          */
-
         it('Should return config file properties', function () {
             const configFilePath = FileHandler._verifyConfigPath();
             const properties = FileHandler._getConfigFileProps(configFilePath);
@@ -43,11 +46,22 @@ describe("Validate 'FileHandler' methods", function () {
             expect(properties).to.have.property('filename');
             expect(properties).to.have.property('path');
             expect(properties).property('filename', 'logs.txt');
-            expect(properties).property('path', '.');
+            expect(properties).property('path', '../');
         });
 
+        /**
+         * _getFile
+         */
         it('Should return file to watch', function () {
-            expect(FileHandler._getFile()).to.be.not.equal('');
+            const result = FileHandler._getFile();
+
+            expect(typeof result).to.be.equal('object');
+            expect(result).to.have.property('fileToWatch');
+            expect(result).to.have.property('config');
+
+            expect(existsSync(result.fileToWatch)).to.be.true;
+            expect(result.config.filename).to.be.equal('logs.txt');
+            expect(result.config.path).to.be.equal('../');
         });
     });
 
@@ -55,30 +69,51 @@ describe("Validate 'FileHandler' methods", function () {
      * Run only when given false values else comment out
      */
     describe('Verify negative test cases', function () {
-        it('Should throw error on invalid path argument', function () {
+        /**
+         * _verifyPath
+         */
+        it('Should throw error on invalid path type argument', function () {
             try {
-                expect(FileHandler._verifyPath('')).throw(
-                    errorMessages._verifyPath
+                FileHandler._verifyPath(null);
+            } catch (error) {
+                expect(error.message).to.be.equal(
+                    errorMessages._verifyPath.invalidArgumentType
                 );
-            } catch (error) {}
+            }
         });
 
-        it('Should throw error if config file not found', function () {
-            try {
-                expect(FileHandler._verifyConfigPath()).throw(
-                    errorMessages._verifyConfigPath
-                );
-            } catch (error) {}
-        });
+        // it('Should throw error if config file not found', function () {
+        //     try {
+        //         FileHandler._verifyConfigPath();
+        //     } catch (error) {
+        //         expect(error.message).to.be.equal(
+        //             errorMessages._verifyConfigPath.noPath
+        //         );
+        //     }
+        // });
 
-        it('Should throw error if config properties does not exist', function () {
-            const configFilePath = FileHandler._verifyConfigPath();
+        // it("Should throw error if config file 'filename' property does not exist", function () {
+        //     const configFilePath = FileHandler._verifyConfigPath();
 
-            try {
-                expect(FileHandler._getConfigFileProps(configFilePath)).throw(
-                    errorMessages._getConfigFileProps
-                );
-            } catch (error) {}
-        });
+        //     try {
+        //         expect(FileHandler._getConfigFileProps(configFilePath)).throw();
+        //     } catch (error) {
+        //         expect(error.message).to.be.equal(
+        //             errorMessages._getConfigFileProps.noFilenameProperty
+        //         );
+        //     }
+        // });
+
+        // it("Should throw error if config file 'path' property does not exist", function () {
+        //     const configFilePath = FileHandler._verifyConfigPath();
+
+        //     try {
+        //         expect(FileHandler._getConfigFileProps(configFilePath)).throw();
+        //     } catch (error) {
+        //         expect(error.message).to.be.equal(
+        //             errorMessages._getConfigFileProps.noPathProperty
+        //         );
+        //     }
+        // });
     });
 });
