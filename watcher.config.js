@@ -1,4 +1,4 @@
 module.exports = {
-  filename: "logs.txt",
-  path: "../",
+  filename: 'logs.txt',
+  path: '../',
 };
