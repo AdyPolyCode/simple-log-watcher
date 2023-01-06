@@ -4,18 +4,23 @@ const { dirname, join } = require('path');
 const {
     InvalidArgumentTypeError,
     InvalidConfigPropertiesError,
-    InvalidPathError,
     NoConfigFileError,
 } = require('./errors');
 
 const PKG_ROOT = dirname(__dirname);
 const PKG_ROOT_PARENT = dirname(PKG_ROOT);
 
-// TODO: update messages
 const errorMessages = {
-    _verifyPath: 'Path does not exist',
-    _verifyConfigPath: 'Config file does not exist',
-    _getConfigFileProps: 'Invalid config properties',
+    _verifyPath: {
+        invalidArgumentType: "Argument 'path' has invalid argument type",
+    },
+    _verifyConfigPath: {
+        noPath: "Config file does not exist, please provide one either in root of 'watcher' or in parent root of 'watcher'",
+    },
+    _getConfigFileProps: {
+        noFilenameProperty: "Config file 'filename' property does not exist",
+        noPathProperty: "Config file 'path' property does not exist",
+    },
 };
 
 class FileHandler {
@@ -51,11 +56,13 @@ class FileHandler {
 
         const { filename, path } = configFile;
 
-        if (!filename) throw new InvalidConfigPropertiesError('');
-        if (!path) throw new InvalidConfigPropertiesError('');
-        if (!filename && !path)
+        if (!filename)
             throw new InvalidConfigPropertiesError(
-                `Invalid config properties, 'filename' and 'path' should be valid properties`
+                errorMessages._getConfigFileProps.noFilenameProperty
+            );
+        if (!path)
+            throw new InvalidConfigPropertiesError(
+                errorMessages._getConfigFileProps.noPathProperty
             );
 
         return configFile;
@@ -79,9 +86,7 @@ class FileHandler {
             : null;
 
         if (!validPath)
-            throw new NoConfigFileError(
-                `Config file does not exist, please provide one either in ${absRootPath} or in ${absRootParentPath}`
-            );
+            throw new NoConfigFileError(errorMessages._verifyConfigPath.noPath);
 
         return validPath;
     }
@@ -94,11 +99,10 @@ class FileHandler {
      * for further operations and run any functionality accordingly
      */
     static _verifyPath(path) {
-        if (typeof path !== 'string')
+        if (!path || typeof path !== 'string')
             throw new InvalidArgumentTypeError(
-                `Argument 'path' has invalid argument type`
+                errorMessages._verifyPath.invalidArgumentType
             );
-        if (!path) throw new InvalidPathError(`Path '${path}' does not exist`);
 
         return existsSync(path);
     }
