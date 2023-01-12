@@ -1,15 +1,13 @@
 const FileWatcher = require('./watch');
 
-function run() {
-    return FileWatcher.watch();
+function run(eventHandler) {
+    const fileWatcher = FileWatcher.init(eventHandler.getInstance());
+
+    console.log(
+        `File: ${fileWatcher.fileName} at path: ${fileWatcher.filePath} is being watched`
+    );
+
+    return fileWatcher;
 }
 
-const instance = run();
-console.log(
-    `File: ${instance.fileName} at path: ${instance.filePath} is being watched`
-);
-
-process.on('uncaughtException', (error, origin) => {
-    console.error(error.message);
-    instance.emit('close-watch');
-});
+module.exports = run;
