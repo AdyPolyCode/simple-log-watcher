@@ -1,69 +1,69 @@
 const { EventEmitter } = require('events');
-const { ServerResponse } = require('http');
 
-const {
-    InvalidArgumentTypeError,
-    EventAlreadyExists,
-    EventDoesNotExistError,
-} = require('./errors');
-
-const errorMessages = {
-    subscribe: {
-        eventUndefined: "Argument 'event' should be a type of 'String'",
-        invalidResponseType:
-            "Argument 'response' should be an instance of 'ServerResponse'",
-        eventExists: 'Event already registered',
-    },
-    publish: {
-        eventNotReal: "Argument 'event' is not registered",
-        dataNotReal: "Argument 'data' must not be empty",
-    },
-};
-
-// Todo: finish subscribe listener & publish emitter
 class ServerEventHandler extends EventEmitter {
+    static instance;
+    __response;
+
+    /**
+     *
+     * @returns ServerEventHandler instance
+     */
     constructor() {
-        super({ captureRejections: true });
+        if (!ServerEventHandler.instance) {
+            super({ captureRejections: true });
+
+            this.__response = null;
+            this.registerServerListener('server-init');
+            this.registerWatchListener('watch-data');
+
+            ServerEventHandler.instance = this;
+        }
+        return ServerEventHandler.instance;
     }
 
-    subscribe(event, response) {
-        if (!event)
-            throw new InvalidArgumentTypeError(
-                errorMessages.subscribe.eventUndefined
-            );
+    /**
+     *
+     * @returns ServerEventHandler instance
+     */
+    static getInstance() {
+        return ServerEventHandler.instance;
+    }
 
-        if (!(response instanceof ServerResponse))
-            throw new InvalidArgumentTypeError(
-                errorMessages.subscribe.invalidResponseType
-            );
+    /**
+     *
+     * @returns ServerResponse
+     */
+    getResponse() {
+        return this.__response;
+    }
 
-        if (this.listeners(event).length > 1)
-            throw new EventAlreadyExists(errorMessages.subscribe.eventExists);
-
-        this.on(event, () => {
-            // response.write('Hello');
-            console.log('Listening');
+    /**
+     *
+     * @param {String} event
+     * @returns void
+     */
+    registerServerListener(event) {
+        this.once(event, (response) => {
+            this.__response = response;
         });
         return;
     }
 
-    publish(event, data) {
-        if (this.listeners(event).length == 0)
-            throw new EventDoesNotExistError(
-                errorMessages.publish.eventNotReal
-            );
-
-        if (!data)
-            throw new InvalidArgumentTypeError(
-                errorMessages.publish.dataNotReal
-            );
-
-        this.emit(event, data);
+    /**
+     *
+     * @param {String} event
+     * @returns void
+     */
+    registerWatchListener(event) {
+        this.on(event, (data) => {
+            if (this.__response) this.__response.end(data);
+        });
         return;
     }
 }
 
+const instance = new ServerEventHandler();
+
 module.exports = {
-    ServerEventHandler: new ServerEventHandler(),
-    errorMessages,
+    ServerEventHandler,
 };
