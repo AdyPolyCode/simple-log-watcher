@@ -15,7 +15,3 @@ function runProcesses() {
 }
 
 runProcesses();
-
-process.on('uncaughtException', (error, origin) => {
-  console.error(error.message);
-});
