@@ -3,13 +3,16 @@ const { expect } = require('chai');
 const { Socket } = require('net');
 const { ServerResponse, IncomingMessage } = require('http');
 
-const { ServerEventHandler, errorMessages } = require('./server-event-handler');
-const {
-    InvalidArgumentTypeError,
-    EventAlreadyExists,
-    EventDoesNotExistError,
-} = require('./errors');
+const { ServerEventHandler } = require('./server-event-handler');
+// const {
+//     InvalidArgumentTypeError,
+//     EventAlreadyExists,
+//     EventDoesNotExistError,
+// } = require('./errors');
 
+/**
+ * ! Warning - Initial design unit tests, no longer working
+ */
 describe("Validate 'ServerEventHandler' methods", function () {
     describe('Verify positive test cases', function () {
         /**
