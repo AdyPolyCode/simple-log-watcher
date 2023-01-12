@@ -7,7 +7,7 @@ function run(eventHandler) {
         `File: ${fileWatcher.fileName} at path: ${fileWatcher.filePath} is being watched`
     );
 
-    return fileWatcher;
+    return { start: () => fileWatcher.watch() };
 }
 
 module.exports = run;
