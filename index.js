@@ -1,8 +1,17 @@
-const { fork } = require('child_process');
+const AppFactory = require('./app-factory');
+const Server = require('./server');
+const Watcher = require('./watcher');
+const { ServerEventHandler } = require('./broker/server-event-handler');
 
-// TODO: add all handlers
 function runProcesses() {
-  const watcher = fork('./watcher/index.js', { killSignal: 'SIGINT' });
+  const { server, watcher } = AppFactory.create(
+    Server,
+    Watcher,
+    ServerEventHandler
+  );
+
+  watcher.start();
+  server.start();
 }
 
 runProcesses();
