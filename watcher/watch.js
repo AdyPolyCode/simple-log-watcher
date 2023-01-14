@@ -10,6 +10,7 @@ class FileWatcher extends EventEmitter {
     static instance;
     fileName;
     filePath;
+    fileDescriptor;
     eventHandler;
 
     /**
@@ -23,6 +24,7 @@ class FileWatcher extends EventEmitter {
             super({ captureRejections: true });
             this.fileName = fileName;
             this.filePath = filePath;
+            this.fileDescriptor = 0;
             this.eventHandler = eventHandler;
             FileWatcher.instance = this;
         }
@@ -53,43 +55,23 @@ class FileWatcher extends EventEmitter {
      */
     watch() {
         const { fileToWatch } = FileHandler._getFile();
-        /**
-         *
-         * @param {Object} err
-         * @param {Number} bytes
-         * @param {ArrayBuffer} buffer
-         */
-        const readHandler = (err, bytes, buffer) => {
-            if (err) throw err;
 
-            if (bytes) {
-                const data = buffer.toString('utf8');
+        open('asd', (err, fd) => {
+            if (err) this._handleClosure(err);
 
-                this.eventHandler.emit('watch-data', data);
-            }
-        };
+            this.fileDescriptor = fd;
 
-        /**
-         *
-         * @param {Number} fd
-         */
-        const reader = (fd) => {
-            read(fd, readHandler);
-        };
-
-        open(fileToWatch, (err, fd) => {
-            if (err) throw err;
-
-            const interval = this._watchHelper(fd, 5000, reader);
+            const interval = this._watchHelper(
+                5000,
+                this._watchReader(this._watchReadHandler.bind(this))
+            );
 
             this.on('close-watch', () => {
                 console.info(
                     `Closing file: ${this.fileName} at path: ${this.filePath}`
                 );
                 clearInterval(interval);
-                close(fd, (err) => {
-                    if (err) throw err;
-                });
+                this._handleClosure(null);
             });
         });
     }
@@ -101,12 +83,60 @@ class FileWatcher extends EventEmitter {
      * @param {Function} cb
      * @returns Async interval
      */
-    _watchHelper(fd, time, cb) {
+    _watchHelper(time, cb) {
         const interval = setInterval(() => {
-            cb(fd);
+            cb();
         }, time);
 
         return interval;
+    }
+
+    /**
+     *
+     * @param {Number} fd
+     * @param {Function} handler
+     */
+    _watchReader(handler) {
+        return () => read(this.fileDescriptor, handler);
+    }
+
+    /**
+     *
+     * @param {Object} err
+     * @param {Number} bytes
+     * @param {ArrayBuffer} buffer
+     */
+    _watchReadHandler(err, bytes, buffer) {
+        if (err) this._handleClosure(err);
+
+        if (bytes) {
+            const data = buffer.toString('utf8');
+
+            this.eventHandler.emit('watch-data', data);
+        }
+    }
+
+    _handleClosure(error) {
+        if (process.env.NODE_ENV === 'dev') {
+            console.log('Error caught exiting...\n');
+
+            return setTimeout(() => {
+                this._handleError(error);
+            }, 3000);
+        }
+
+        this._handleError(error);
+    }
+
+    _handleError(error) {
+        if (error) console.log(error);
+
+        if (this.fileDescriptor)
+            return close(this.fileDescriptor, (err) => {
+                if (err) console.log(err);
+            });
+
+        process.exit(1);
     }
 }
 
