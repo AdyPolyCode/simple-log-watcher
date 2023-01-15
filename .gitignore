@@ -5,3 +5,5 @@
 /**/*.txt
 
 /.env
+
+/client/dist
