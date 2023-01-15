@@ -1,0 +1,23 @@
+{
+    "type": "module",
+    "name": "client",
+    "version": "1.0.0",
+    "description": "",
+    "main": "src/index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "dev": "webpack build && webpack server"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "webpack": "^5.75.0",
+        "webpack-cli": "^5.0.1",
+        "webpack-dev-server": "^4.11.1"
+    },
+    "dependencies": {
+        "@microsoft/fetch-event-source": "^2.0.1",
+        "dotenv": "^16.0.3"
+    }
+}
